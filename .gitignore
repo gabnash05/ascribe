@@ -1,0 +1,197 @@
+# ──────────────────────────────────────────────────────────────
+# Python
+# ──────────────────────────────────────────────────────────────
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.python/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+test-results/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# ──────────────────────────────────────────────────────────────
+# Node.js / Frontend
+# ──────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Frontend build output
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.output/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.prod
+.env.staging
+
+# Vite
+frontend/.vite/
+
+# TanStack Router generated files
+frontend/src/routeTree.gen.ts
+
+# ──────────────────────────────────────────────────────────────
+# Docker
+# ──────────────────────────────────────────────────────────────
+# Docker volumes (if stored locally)
+docker-data/
+postgres-data/
+redis-data/
+model_cache/
+
+# Docker compose overrides
+docker-compose.override.yml
+docker-compose.*.override.yml
+
+# ──────────────────────────────────────────────────────────────
+# Database
+# ──────────────────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Alembic
+backend/migrations/versions/*.pyc
+backend/migrations/__pycache__/
+
+# ──────────────────────────────────────────────────────────────
+# IDE / Editor
+# ──────────────────────────────────────────────────────────────
+# Vim
+*.swp
+*.swo
+*~
+*.un~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# JetBrains (already covered above, but explicit)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ──────────────────────────────────────────────────────────────
+# OS generated files
+# ──────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.log
+*.tmp
+
+# ──────────────────────────────────────────────────────────────
+# Project specific
+# ──────────────────────────────────────────────────────────────
+# Model cache for embeddings
+model_cache/
+*.pkl
+*.bin
+*.onnx
+
+# Celery beat schedule file
+celerybeat-schedule
+celerybeat.pid
+
+# Supabase local development
+supabase/.temp/
+supabase/.env
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Secrets (explicit)
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
