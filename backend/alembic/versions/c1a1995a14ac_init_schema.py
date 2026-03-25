@@ -25,55 +25,55 @@ def upgrade() -> None:
     # Vaults
     op.execute("""
     CREATE TABLE IF NOT EXISTS vaults (
-        id           UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
-        user_id      UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-        name         TEXT        NOT NULL CHECK (char_length(name) BETWEEN 1 AND 100),
-        description  TEXT,
-        metadata     JSONB       DEFAULT '{}'::jsonb,
-        created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+        id              UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id         UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        name            TEXT        NOT NULL CHECK (char_length(name) BETWEEN 1 AND 100),
+        description     TEXT,
+        vault_metadata  JSONB       DEFAULT '{}'::jsonb,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     """)
 
     # Files
     op.execute("""
     CREATE TABLE IF NOT EXISTS files (
-        id             UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
-        vault_id       UUID        NOT NULL REFERENCES vaults(id) ON DELETE CASCADE,
-        user_id        UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-        storage_path   TEXT        NOT NULL,
-        original_name  TEXT        NOT NULL,
-        file_type      TEXT        NOT NULL CHECK (file_type IN ('pdf','image','docx','txt','note')),
-        mime_type      TEXT,
-        size_bytes     BIGINT,
-        page_count     INTEGER,
-        status         TEXT        NOT NULL DEFAULT 'processing'
-                                   CHECK (status IN ('processing','ready','failed')),
-        error_message  TEXT,
-        total_chunks   INTEGER     DEFAULT 0,
-        total_tokens   INTEGER     DEFAULT 0,
-        metadata       JSONB       DEFAULT '{}'::jsonb,
-        created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-        updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+        id              UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+        vault_id        UUID        NOT NULL REFERENCES vaults(id) ON DELETE CASCADE,
+        user_id         UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        storage_path    EXT        NOT NULL,
+        original_name   TEXT        NOT NULL,
+        file_type       TEXT        NOT NULL CHECK (file_type IN ('pdf','image','docx','txt','note')),
+        mime_type       TEXT,
+        size_bytes      BIGINT,
+        page_count      INTEGER,
+        status          TEXT        NOT NULL DEFAULT 'processing'
+                                    CHECK (status IN ('processing','ready','failed')),
+        error_message   TEXT,
+        total_chunks    INTEGER     DEFAULT 0,
+        total_tokens    INTEGER     DEFAULT 0,
+        file_metadata   JSONB       DEFAULT '{}'::jsonb,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     """)
 
     # Chunks
     op.execute("""
     CREATE TABLE IF NOT EXISTS chunks (
-        id               UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
-        file_id          UUID        NOT NULL REFERENCES files(id) ON DELETE CASCADE,
-        vault_id         UUID        NOT NULL REFERENCES vaults(id) ON DELETE CASCADE,
-        content          TEXT        NOT NULL,
-        chunk_index      INTEGER     NOT NULL,
-        page_number      INTEGER,
-        section_title    TEXT,
-        token_count      INTEGER,
-        embedding        VECTOR(384),
-        ts_vector        TSVECTOR GENERATED ALWAYS AS (to_tsvector('english', content)) STORED,
-        importance_score FLOAT       DEFAULT 1.0,
-        metadata         JSONB       DEFAULT '{}'::jsonb,
-        created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+        id              UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
+        file_id         UUID        NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+        vault_id        UUID        NOT NULL REFERENCES vaults(id) ON DELETE CASCADE,
+        content         TEXT        NOT NULL,
+        chunk_index     INTEGER     NOT NULL,
+        page_number     INTEGER,
+        section_title   TEXT,
+        token_count     INTEGER,
+        embedding       VECTOR(384),
+        ts_vector       TSVECTOR GENERATED ALWAYS AS (to_tsvector('english', content)) STORED,
+        importance_score    FLOAT       DEFAULT 1.0,
+        chunks_metadata JSONB       DEFAULT '{}'::jsonb,
+        created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     """)
 
