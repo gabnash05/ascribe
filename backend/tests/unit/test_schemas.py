@@ -25,7 +25,7 @@ def _vault_response_data(**overrides) -> dict:
         "user_id": uuid.uuid4(),
         "name": "My Vault",
         "description": "A test vault",
-        "metadata": {},
+        "vault_metadata": {},
         "created_at": _now(),
         "updated_at": _now(),
         **overrides,
@@ -38,15 +38,15 @@ def _file_response_data(**overrides) -> dict:
         "vault_id": uuid.uuid4(),
         "user_id": uuid.uuid4(),
         "original_name": "lecture_notes.pdf",
-        "file_type": "pdf",
+        "file_type": "PDF",
         "mime_type": "application/pdf",
         "size_bytes": 204800,
         "page_count": 12,
-        "status": "ready",
+        "status": "READY",
         "error_message": None,
         "total_chunks": 24,
         "total_tokens": 6800,
-        "metadata": {},
+        "file_metadata": {},
         "created_at": _now(),
         "updated_at": _now(),
         **overrides,
@@ -140,14 +140,14 @@ class TestVaultResponse:
         assert v.description is None
 
     def test_metadata_defaults_to_empty_dict(self):
-        data = _vault_response_data(metadata={})
+        data = _vault_response_data(vault_metadata={})
         v = VaultResponse(**data)
-        assert v.metadata == {}
+        assert v.vault_metadata == {}
 
     def test_metadata_with_content(self):
-        data = _vault_response_data(metadata={"color": "blue", "pinned": True})
+        data = _vault_response_data(vault_metadata={"color": "blue", "pinned": True})
         v = VaultResponse(**data)
-        assert v.metadata["color"] == "blue"
+        assert v.vault_metadata["color"] == "blue"
 
     def test_from_attributes(self):
         """Confirm model_config from_attributes works with a mock ORM object."""
@@ -157,7 +157,7 @@ class TestVaultResponse:
             user_id = uuid.uuid4()
             name = "ORM Vault"
             description = None
-            metadata = {}
+            vault_metadata = {}
             created_at = _now()
             updated_at = _now()
 
@@ -198,7 +198,7 @@ class TestFileResponse:
     def test_valid_full(self):
         f = FileResponse(**_file_response_data())
         assert f.original_name == "lecture_notes.pdf"
-        assert f.status == "ready"
+        assert f.status == "READY"
 
     def test_nullable_fields_accept_none(self):
         data = _file_response_data(
@@ -219,24 +219,24 @@ class TestFileResponse:
         assert not hasattr(f, "storage_path")
 
     def test_status_processing(self):
-        f = FileResponse(**_file_response_data(status="processing"))
-        assert f.status == "processing"
+        f = FileResponse(**_file_response_data(status="PROCESSING"))
+        assert f.status == "PROCESSING"
 
     def test_status_failed_with_error_message(self):
         f = FileResponse(
             **_file_response_data(
-                status="failed",
+                status="FAILED",
                 error_message="Docling could not parse this file.",
             )
         )
-        assert f.status == "failed"
+        assert f.status == "FAILED"
         assert f.error_message is not None
 
     def test_metadata_with_content(self):
         f = FileResponse(
-            **_file_response_data(metadata={"ocr": True, "language": "en"})
+            **_file_response_data(file_metadata={"ocr": True, "language": "en"})
         )
-        assert f.metadata["ocr"] is True
+        assert f.file_metadata["ocr"] is True
 
     def test_from_attributes(self):
         class FakeFile:
@@ -244,15 +244,15 @@ class TestFileResponse:
             vault_id = uuid.uuid4()
             user_id = uuid.uuid4()
             original_name = "notes.txt"
-            file_type = "txt"
+            file_type = "TXT"
             mime_type = "text/plain"
             size_bytes = 1024
             page_count = None
-            status = "ready"
+            status = "READY"
             error_message = None
             total_chunks = 4
             total_tokens = 512
-            metadata = {}
+            file_metadata = {}
             created_at = _now()
             updated_at = _now()
 

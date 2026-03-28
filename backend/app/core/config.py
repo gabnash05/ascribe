@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     supabase_anon_key: str
     supabase_service_role_key: str
     database_url: str
+    supabase_storage_bucket: str
 
     # Redis
     redis_url: str = "redis://redis:6379/0"

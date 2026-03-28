@@ -35,6 +35,3 @@ class Vault(Base):
     files: Mapped[list["File"]] = relationship(  # noqa: F821
         "File", back_populates="vault", cascade="all, delete-orphan", lazy="select"
     )
-    notes: Mapped[list["Note"]] = relationship(  # noqa: F821
-        "Note", back_populates="vault", cascade="all, delete-orphan", lazy="select"
-    )

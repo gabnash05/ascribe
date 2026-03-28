@@ -334,8 +334,6 @@ DATE: 2026-03-25
       - app/models/chunk.py — Chunk model with ts_vector mapped as
         Computed(..., persisted=True) so SQLAlchemy never writes to the
         DB-generated column. importance_score and metadata included.
-      - app/models/note.py — Model defined but guarded with a warning
-        comment; must not be imported until notes migration is applied.
   - Pydantic schemas defined:
       - app/schemas/vault.py — VaultCreate, VaultUpdate, VaultResponse,
         VaultListResponse.
@@ -360,9 +358,6 @@ DATE: 2026-03-25
   ├── backend/
   │   ├── app/
   │   │   ├── api/
-  │   │   │   └── v1/
-  │   │   │       ├── __init__.py       # api_router, mounts sub-routers
-  │   │   │       └── vaults.py         # Vaults CRUD endpoints
   │   │   ├── core/
   │   │   │   ├── config.py
   │   │   │   ├── database.py

@@ -41,7 +41,7 @@ def upgrade() -> None:
         id              UUID        PRIMARY KEY DEFAULT uuid_generate_v4(),
         vault_id        UUID        NOT NULL REFERENCES vaults(id) ON DELETE CASCADE,
         user_id         UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-        storage_path    EXT        NOT NULL,
+        storage_path    TEXT        NOT NULL,
         original_name   TEXT        NOT NULL,
         file_type       TEXT        NOT NULL CHECK (file_type IN ('pdf','image','docx','txt','note')),
         mime_type       TEXT,
@@ -90,7 +90,7 @@ def upgrade() -> None:
         "CREATE INDEX IF NOT EXISTS idx_chunks_ts_vector ON chunks USING gin(ts_vector);"
     )
     op.execute(
-        "CREATE INDEX IF NOT EXISTS idx_chunks_metadata ON chunks USING gin(metadata);"
+        "CREATE INDEX IF NOT EXISTS idx_chunks_metadata ON chunks USING gin(chunks_metadata);"
     )
     op.execute(
         "CREATE INDEX IF NOT EXISTS idx_chunks_vault_file ON chunks (vault_id, file_id);"
