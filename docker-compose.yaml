@@ -3,11 +3,15 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        - EMBEDDING_MODEL=${EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
+        - EMBEDDING_CACHE_DIR=${EMBEDDING_CACHE_DIR:-/app/model_cache}
     ports:
       - "8000:8000"
     env_file: .env
     volumes:
       - ./backend:/app
+      - model_cache:/app/model_cache
     depends_on:
       redis:
         condition: service_healthy
@@ -17,6 +21,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.worker
+      args:
+        - EMBEDDING_MODEL=${EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
+        - EMBEDDING_CACHE_DIR=${EMBEDDING_CACHE_DIR:-/app/model_cache}
     env_file: .env
     volumes:
       - ./backend:/app

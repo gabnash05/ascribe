@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
+from functools import lru_cache
 from typing import Any
 
 from celery import Task
@@ -36,48 +37,42 @@ class NonRetryableError(Exception):
 
 # ── Singletons ─────────────────────────────────────────────────────────────
 
-_sync_engine = None
-_SyncSession: sessionmaker | None = None
+
+@lru_cache(maxsize=1)
+def _get_sessionmaker():
+    """Create and cache the SQLAlchemy sessionmaker."""
+    url = make_url(settings.database_url)
+    sync_driver = url.drivername.replace("+asyncpg", "").replace("+aiopg", "")
+    sync_url = str(url.set(drivername=sync_driver))
+    engine = create_engine(sync_url, pool_pre_ping=True)
+    return sessionmaker(bind=engine, expire_on_commit=False)
 
 
 def _get_session() -> Session:
-    global _sync_engine, _SyncSession
-    if _sync_engine is None:
-        url = make_url(settings.database_url)
-        sync_driver = url.drivername.replace("+asyncpg", "").replace("+aiopg", "")
-        sync_url = str(url.set(drivername=sync_driver))
-        _sync_engine = create_engine(sync_url, pool_pre_ping=True)
-        _SyncSession = sessionmaker(bind=_sync_engine, expire_on_commit=False)
-    return _SyncSession()
+    """Return a new session from the cached sessionmaker."""
+    return _get_sessionmaker()()
 
 
-_embedding_model = None
-
-
+@lru_cache(maxsize=1)
 def _get_embedding_model():
-    global _embedding_model
-    if _embedding_model is None:
-        from sentence_transformers import SentenceTransformer
+    from sentence_transformers import SentenceTransformer
 
-        logger.info("Loading bge-small-en-v1.5 — one-time warm-up...")
-        _embedding_model = SentenceTransformer("BAAI/bge-small-en-v1.5")
-        logger.info("Embedding model ready.")
-    return _embedding_model
-
-
-_supabase_client = None
+    logger.info("Loading bge-small-en-v1.5 — one-time warm-up...")
+    model = SentenceTransformer(
+        settings.embedding_model, cache_folder=settings.embedding_cache_dir
+    )
+    logger.info("Embedding model ready.")
+    return model
 
 
+@lru_cache(maxsize=1)
 def _get_supabase_client():
-    global _supabase_client
-    if _supabase_client is None:
-        from supabase import create_client
+    from supabase import create_client
 
-        _supabase_client = create_client(
-            settings.supabase_url,
-            settings.supabase_service_role_key,
-        )
-    return _supabase_client
+    return create_client(
+        settings.supabase_url,
+        settings.supabase_service_role_key,
+    )
 
 
 # ── Pipeline helpers ───────────────────────────────────────────────────────
@@ -176,7 +171,7 @@ def _bulk_insert_chunks(
             "embedding": vector,
             "chunk_index": idx,
         }
-        for idx, (text, vector) in enumerate(zip(chunks, vectors, strict=False))
+        for idx, (text, vector) in enumerate(zip(chunks, vectors, strict=True))
     ]
 
     for batch_start in range(0, len(rows), CHUNK_INSERT_BATCH):

@@ -1,5 +1,9 @@
 FROM python:3.12-slim
 
+# Build args (must be provided via docker-compose build args)
+ARG EMBEDDING_MODEL
+ARG EMBEDDING_CACHE_DIR
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
@@ -12,8 +16,8 @@ WORKDIR /app
 
 # Tell HuggingFace + sentence-transformers to use this path.
 # Must be set before the model download below so it lands in the right place.
-ENV HF_HOME=/app/model_cache
-ENV SENTENCE_TRANSFORMERS_HOME=/app/model_cache
+ENV HF_HOME=${EMBEDDING_CACHE_DIR}
+ENV SENTENCE_TRANSFORMERS_HOME=${EMBEDDING_CACHE_DIR}
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -23,6 +27,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # if the volume is empty — subsequent restarts reuse the volume, no re-download.
 RUN python -c "\
 from sentence_transformers import SentenceTransformer; \
-SentenceTransformer('BAAI/bge-small-en-v1.5')"
+SentenceTransformer('${EMBEDDING_MODEL}', cache_folder='${EMBEDDING_CACHE_DIR}')"
 
 COPY . .
