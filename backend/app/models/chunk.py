@@ -21,7 +21,9 @@ class Chunk(Base):
         nullable=False,
         index=True,
     )
-    vault_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    vault_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False, index=True
+    )
     content: Mapped[str] = mapped_column(Text, nullable=False)
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
     page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)

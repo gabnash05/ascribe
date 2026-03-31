@@ -30,7 +30,7 @@ class File(Base):
     storage_path: Mapped[str] = mapped_column(Text, nullable=False)
     original_name: Mapped[str] = mapped_column(Text, nullable=False)
     file_type: Mapped[ValidFileTypesEnum] = mapped_column(
-        SAEnum(ValidFileTypesEnum, name="valid_file_types", create_type=True),
+        SAEnum(ValidFileTypesEnum, native_enum=False, length=50),
         nullable=False,
         server_default=ValidFileTypesEnum.TXT.value,
     )
@@ -38,7 +38,7 @@ class File(Base):
     size_bytes: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[FileStatusEnum] = mapped_column(
-        SAEnum(FileStatusEnum, name="file_status", create_type=True),
+        SAEnum(FileStatusEnum, native_enum=False, length=50),
         nullable=False,
         server_default=FileStatusEnum.PROCESSING.value,
     )

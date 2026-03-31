@@ -7,7 +7,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # Import your models for autogenerate support
-from app.core.database import Base  # Update this path to your Base
+from app.core.database import Base
 
 load_dotenv()
 

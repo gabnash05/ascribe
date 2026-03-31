@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # ── Tuneable limits ────────────────────────────────────────────────────────
 
-MAX_FILE_SIZE_BYTES: int = 50 * 1024 * 1024  # 50 MB — reject before extraction
+MAX_FILE_SIZE_BYTES: int = settings.max_file_size_bytes  # 50 MB
 MAX_EXTRACTED_CHARS: int = 500_000  # ~350 pages of dense text
 MAX_CHUNKS: int = 2_000  # safety ceiling after chunking
 CHUNK_INSERT_BATCH: int = 500  # rows per DB transaction

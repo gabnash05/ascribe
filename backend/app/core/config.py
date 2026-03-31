@@ -26,5 +26,8 @@ class Settings(BaseSettings):
     embedding_model: str = "BAAI/bge-small-en-v1.5"
     embedding_cache_dir: str = "./model_cache"
 
+    # File Uploads
+    max_file_size_bytes: int = 50 * 1024 * 1024  # 50 MB
+
 
 settings = Settings()
