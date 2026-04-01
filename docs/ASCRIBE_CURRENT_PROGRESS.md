@@ -63,15 +63,31 @@ DATE: 2026-03-28
     embed → insert pipeline with idempotent retries and FAILED status
     on non-retryable errors.
   - Unit and integration tests written and passing for all of the above.
-
+  - Full pipeline layer: embedder.py (BGE singleton, asymmetric prefix on
+    queries only) and retriever.py (RRF hybrid SQL via sqlalchemy.text).
+  - Full service layer: vault_service, file_service, search_service,
+    ai_service. Commit/flush split: services flush, routes commit.
+    Supabase storage wrapped in asyncio.to_thread.
+  - Full API route layer: vaults, files, search, ai — all wired into
+    main.py under /api/v1. AI routes guarded by vault_has_ready_files
+    (422 if no indexed content). Upload returns 202.
+  - Schema layer extended: schemas/search.py and schemas/ai.py added.
+    QuizQuestion.explanation is list[str] (one per option). Pydantic
+    validators enforce option label format and explanation length.
+  - Shared Supabase dependency: app/core/clients.py, get_supabase()
+    lru_cache singleton using service role key.
+  - Unit test suite complete: tests/unit/ with conftest, fixtures
+    (mock_db, mock_supabase, app, client, make_vault, make_file) and
+    full coverage for all services and routes. __init__.py files present
+    in all test subdirectories.
 
 ── What is in progress ─────────────────────────────────────────
 
-help me plan what is in progress
+  < FILL IN HERE >
 
 ── What is broken or blocked ────────────────────────────────────
 
-none
+  none
 
 ── Current file/folder structure (optional but helpful) ─────────
 
@@ -79,10 +95,16 @@ none
   ├── backend/
   │   ├── app/
   │   │   ├── api/
+  │   │   │   └── v1/
+  │   │   │       ├── vaults.py
+  │   │   │       ├── files.py
+  │   │   │       ├── search.py
+  │   │   │       └── ai.py
   │   │   ├── core/
   │   │   │   ├── config.py
   │   │   │   ├── database.py
-  │   │   │   └── security.py
+  │   │   │   ├── security.py
+  │   │   │   └── clients.py
   │   │   ├── models/
   │   │   │   ├── __init__.py
   │   │   │   ├── vault.py
@@ -90,20 +112,42 @@ none
   │   │   │   └── chunk.py
   │   │   ├── schemas/
   │   │   │   ├── vault.py
-  │   │   │   └── file.py
-  │   │   ├── services/                 # empty, not yet built
+  │   │   │   ├── file.py
+  │   │   │   ├── search.py
+  │   │   │   └── ai.py
+  │   │   ├── services/
+  │   │   │   ├── vault_service.py
+  │   │   │   ├── file_service.py
+  │   │   │   ├── search_service.py
+  │   │   │   └── ai_service.py
   │   │   ├── workers/
   │   │   │   ├── celery_app.py
   │   │   │   └── ingestion.py
-  │   │   ├── pipeline/                 # empty, not yet built
+  │   │   ├── pipeline/
+  │   │   │   ├── embedder.py
+  │   │   │   └── retriever.py
   │   │   ├── enums.py
   │   │   └── main.py
   │   ├── migrations/
   │   │   └── versions/
-  │   │       └── c1a1995a14ac_init_schema.py   # applied
+  │   │       └── c1a..._init_schema.py   # applied
   │   ├── tests/
   │   │   ├── conftest.py
-  │   │   ├── workers/
+  │   │   ├── unit/
+  │   │   │   ├── __init__.py
+  │   │   │   ├── conftest.py
+  │   │   │   ├── services/
+  │   │   │   │   ├── __init__.py
+  │   │   │   │   ├── test_vault_service.py
+  │   │   │   │   ├── test_file_service.py
+  │   │   │   │   ├── test_search_service.py
+  │   │   │   │   └── test_ai_service.py
+  │   │   │   └── routes/
+  │   │   │   │   ├── __init__.py
+  │   │   │   │   ├── test_vaults_route.py
+  │   │   │   │   ├── test_files_route.py
+  │   │   │   │   ├── test_search_route.py
+  │   │   │   │   └── test_ai_route.py
   │   │   │   ├── test_celery_app.py
   │   │   │   └── test_ingestion.py
   │   │   └── integration/
