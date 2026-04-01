@@ -98,7 +98,9 @@ class TestEmbed:
         mock_model = MagicMock()
         mock_model.encode.return_value = np.zeros((3, 384), dtype="float32")
 
-        with patch("app.workers.ingestion._embedding_model", mock_model):
+        with patch(
+            "app.workers.ingestion._get_embedding_model", return_value=mock_model
+        ):
             result = _embed(["chunk one", "chunk two", "chunk three"])
 
         assert isinstance(result, list)
@@ -111,7 +113,9 @@ class TestEmbed:
         mock_model = MagicMock()
         mock_model.encode.return_value = np.zeros((len(texts), 384), dtype="float32")
 
-        with patch("app.workers.ingestion._embedding_model", mock_model):
+        with patch(
+            "app.workers.ingestion._get_embedding_model", return_value=mock_model
+        ):
             result = _embed(texts)
 
         assert len(result) == len(texts)
@@ -122,7 +126,9 @@ class TestEmbed:
         mock_model = MagicMock()
         mock_model.encode.return_value = np.zeros((2, 384), dtype="float32")
 
-        with patch("app.workers.ingestion._embedding_model", mock_model):
+        with patch(
+            "app.workers.ingestion._get_embedding_model", return_value=mock_model
+        ):
             result = _embed(["text one", "text two"])
 
         assert all(len(v) == 384 for v in result)
@@ -133,7 +139,9 @@ class TestEmbed:
         mock_model = MagicMock()
         mock_model.encode.return_value = np.zeros((1, 384), dtype="float32")
 
-        with patch("app.workers.ingestion._embedding_model", mock_model):
+        with patch(
+            "app.workers.ingestion._get_embedding_model", return_value=mock_model
+        ):
             _embed(["hello world"])
 
         _, kwargs = mock_model.encode.call_args
@@ -146,8 +154,7 @@ class TestEmbed:
         """
         import app.workers.ingestion as module
 
-        original = module._embedding_model
-        module._embedding_model = None  # force reset
+        module._get_embedding_model.cache_clear()
 
         with patch("sentence_transformers.SentenceTransformer") as mock_cls:
             mock_cls.return_value = MagicMock()
@@ -156,7 +163,6 @@ class TestEmbed:
             module._get_embedding_model()  # second call — should not re-instantiate
 
         assert mock_cls.call_count == 1
-        module._embedding_model = original  # restore
 
 
 # ── Celery task unit tests ─────────────────────────────────────────────────

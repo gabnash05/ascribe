@@ -155,3 +155,25 @@ def _infer_file_type(filename: str) -> str:
 
     ext = os.path.splitext(filename)[1].lower()
     return _EXT_MAP.get(ext, "txt")
+
+
+async def vault_has_ready_files(
+    db: AsyncSession,
+    vault_id: str,
+    user_id: str,
+) -> bool:
+    """
+    Return True if the vault contains at least one file with status='ready'.
+    Used as a guard before AI feature calls.
+    Ownership is enforced by checking user_id via vault_service.
+    """
+    vault = await vault_service.get_vault(db, vault_id, user_id)
+    if vault is None:
+        return False
+
+    result = await db.execute(
+        select(File.id)
+        .where(File.vault_id == vault_id, File.status == "ready")
+        .limit(1)
+    )
+    return result.scalar_one_or_none() is not None
