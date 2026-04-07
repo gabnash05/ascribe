@@ -18,7 +18,7 @@ def _make_vault():
     return v
 
 
-def _make_file(status="processing"):
+def _make_file(status="PROCESSING"):
     f = MagicMock()
     f.id = FILE_ID
     f.vault_id = VAULT_ID

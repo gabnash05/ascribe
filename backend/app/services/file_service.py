@@ -54,7 +54,7 @@ async def upload_file(
         file_type=_infer_file_type(original_name),
         mime_type=file.content_type,
         size_bytes=size_bytes,
-        status="processing",
+        status="PROCESSING",
     )
     db.add(record)
     await db.flush()
@@ -138,15 +138,39 @@ async def delete_file(
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 _EXT_MAP = {
-    ".pdf": "pdf",
-    ".docx": "docx",
-    ".doc": "docx",
-    ".txt": "txt",
-    ".png": "image",
-    ".jpg": "image",
-    ".jpeg": "image",
-    ".webp": "image",
-    ".gif": "image",
+    # PDF
+    ".pdf": "PDF",
+    # DOCX
+    ".docx": "DOCX",
+    ".doc": "DOCX",  # Legacy .doc files map to DOCX (handled by python-docx)
+    # TXT
+    ".txt": "TXT",
+    ".text": "TXT",
+    ".md": "TXT",
+    ".markdown": "TXT",
+    ".mdown": "TXT",
+    ".mkd": "TXT",
+    ".mkdn": "TXT",
+    # IMAGE
+    ".png": "IMAGE",
+    ".jpg": "IMAGE",
+    ".jpeg": "IMAGE",
+    ".gif": "IMAGE",
+    ".webp": "IMAGE",
+    ".bmp": "IMAGE",
+    ".svg": "IMAGE",
+    ".ico": "IMAGE",
+    ".tiff": "IMAGE",
+    ".tif": "IMAGE",
+    # Additional document formats (optional - map to appropriate types)
+    ".rtf": "DOCX",  # Rich Text Format - can be processed as document
+    ".odt": "DOCX",  # OpenDocument Text - LibreOffice format
+    ".html": "NOTE",  # HTML can be treated as markdown-like
+    ".htm": "NOTE",  # Same as above
+    ".xml": "TXT",  # XML as plain text
+    ".json": "TXT",  # JSON as plain text
+    ".csv": "TXT",  # CSV as plain text
+    ".log": "TXT",  # Log files as plain text
 }
 
 
@@ -173,7 +197,7 @@ async def vault_has_ready_files(
 
     result = await db.execute(
         select(File.id)
-        .where(File.vault_id == vault_id, File.status == "ready")
+        .where(File.vault_id == vault_id, File.status == "READY")
         .limit(1)
     )
     return result.scalar_one_or_none() is not None

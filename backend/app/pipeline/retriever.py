@@ -5,10 +5,10 @@ _HYBRID_SEARCH_SQL = """
 WITH semantic AS (
     SELECT
         id, content, file_id, page_number, section_title,
-        (1 - (embedding <=> :query_vec::vector)) AS semantic_score
+        (1 - (embedding <=> CAST(:query_vec AS vector))) AS semantic_score
     FROM chunks
     WHERE vault_id = :vault_id
-    ORDER BY embedding <=> :query_vec::vector
+    ORDER BY embedding <=> CAST(:query_vec AS vector)
     LIMIT :top_k
 ),
 keyword AS (

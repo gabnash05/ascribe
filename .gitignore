@@ -122,8 +122,8 @@ docker-compose.*.override.yml
 *.db-journal
 
 # Alembic
-backend/migrations/versions/*.pyc
-backend/migrations/__pycache__/
+backend/alembic/versions/*.pyc
+backend/alembic/__pycache__/
 
 # ──────────────────────────────────────────────────────────────
 # IDE / Editor

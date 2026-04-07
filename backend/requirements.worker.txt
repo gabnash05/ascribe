@@ -1,0 +1,57 @@
+# ─── Worker-only dependencies ─────────────────────────────────
+# Install alongside requirements.txt in the worker container only.
+# The API container does NOT install these.
+# All versions identical to original pip freeze.
+
+# ── Document extraction ────────────────────────────────────────
+docling==2.82.0
+docling-core==2.70.2
+docling-ibm-models==3.12.0
+docling-parse==5.6.1
+
+# ── Vision / OCR ──────────────────────────────────────────────
+opencv-python==4.13.0.92
+pillow==12.1.1
+pypdfium2==5.6.0
+rapidocr==3.7.0
+pyclipper==1.4.0
+
+# ── Scientific / ML (docling deps) ────────────────────────────
+scipy==1.17.1
+scikit-learn==1.8.0
+joblib==1.5.3
+threadpoolctl==3.6.0
+omegaconf==2.3.0
+mpire==2.10.2
+shapely==2.1.2
+rtree==1.4.1
+
+# ── Document format handling ───────────────────────────────────
+python-docx==1.2.0
+python-pptx==1.0.2
+openpyxl==3.1.5
+et_xmlfile==2.0.0
+xlsxwriter==3.2.9
+pandas==3.0.1
+lxml==6.0.2
+beautifulsoup4==4.14.3
+soupsieve==2.8.3
+semchunk==3.2.5
+
+# ── LaTeX / math rendering ────────────────────────────────────
+latex2mathml==3.79.0
+pylatexenc==2.10
+
+# ── Tree-sitter (docling code parsing) ────────────────────────
+tree-sitter==0.25.2
+tree-sitter-c==0.24.1
+tree-sitter-javascript==0.25.0
+tree-sitter-python==0.25.0
+tree-sitter-typescript==0.23.2
+
+# ── Misc worker deps ──────────────────────────────────────────
+filetype==1.2.0
+tabulate==0.10.0
+
+# ── Celery Redis transport ─────────────────────────────────────
+celery[redis]==5.6.2

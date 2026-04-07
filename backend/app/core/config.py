@@ -11,6 +11,13 @@ class Settings(BaseSettings):
     database_url: str
     supabase_storage_bucket: str
 
+    worker_database_url: str
+    worker_db_host: str = ""
+    worker_db_port: int = 6543
+    worker_db_user: str = ""
+    worker_db_password: str = ""
+    worker_db_name: str = "postgres"
+
     # Redis
     redis_url: str = "redis://redis:6379/0"
 
@@ -28,7 +35,7 @@ class Settings(BaseSettings):
     embedding_cache_dir: str = "./model_cache"
 
     # File Uploads
-    max_file_size_bytes: int = 50 * 1024 * 1024  # 50 MB
+    max_file_size_bytes: int = 52428800  # 50 MB
 
 
 settings = Settings()

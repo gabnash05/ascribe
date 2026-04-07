@@ -1,32 +1,37 @@
+# ─── Base Image ───────────────────────────────────────────────
 FROM python:3.12-slim
 
-# Build args (must be provided via docker-compose build args)
-ARG EMBEDDING_MODEL
-ARG EMBEDDING_CACHE_DIR
+ARG EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+ARG EMBEDDING_CACHE_DIR=/app/model_cache
 
+# System deps for Docling, OCR, and image processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
     libgl1 \
     libglib2.0-0 \
     libgomp1 \
     poppler-utils \
     tesseract-ocr \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Tell HuggingFace + sentence-transformers to use this path.
-# Must be set before the model download below so it lands in the right place.
-ENV HF_HOME=${EMBEDDING_CACHE_DIR}
-ENV SENTENCE_TRANSFORMERS_HOME=${EMBEDDING_CACHE_DIR}
+ENV HF_HOME=${EMBEDDING_CACHE_DIR} \
+    SENTENCE_TRANSFORMERS_HOME=${EMBEDDING_CACHE_DIR} \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
+# Two-step install so Docker cache busts correctly:
+# changing worker deps doesn't invalidate the base layer
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip \
+    && pip install -r requirements.txt
 
-# Bake the model into the image at build time.
-# Docker will copy these files into the named volume on first run
-# if the volume is empty — subsequent restarts reuse the volume, no re-download.
-RUN python -c "\
-from sentence_transformers import SentenceTransformer; \
-SentenceTransformer('${EMBEDDING_MODEL}', cache_folder='${EMBEDDING_CACHE_DIR}')"
+COPY requirements.worker.txt .
+RUN pip install -r requirements.worker.txt
 
-COPY . .
+COPY ./app ./app
+
+CMD ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info", "--concurrency=2"]

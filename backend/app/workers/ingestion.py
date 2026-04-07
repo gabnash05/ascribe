@@ -8,7 +8,7 @@ from typing import Any
 
 from celery import Task
 from sqlalchemy import create_engine, delete, insert, select, update
-from sqlalchemy.engine.url import make_url
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings
@@ -16,6 +16,8 @@ from app.enums import FileStatusEnum
 from app.models.chunk import Chunk
 from app.models.file import File
 from app.workers.celery_app import celery_app
+from app.workers.exceptions import NonRetryableError
+from app.workers.text_extraction import _extract_docx, _extract_image, _extract_pdf
 
 logger = logging.getLogger(__name__)
 
@@ -28,23 +30,21 @@ CHUNK_INSERT_BATCH: int = 500  # rows per DB transaction
 EMBED_BATCH_SIZE: int = 64  # sentences per encoding call
 
 
-# ── Exception hierarchy ────────────────────────────────────────────────────
-
-
-class NonRetryableError(Exception):
-    """Raised for failures where retrying will never succeed."""
-
-
 # ── Singletons ─────────────────────────────────────────────────────────────
 
 
 @lru_cache(maxsize=1)
 def _get_sessionmaker():
     """Create and cache the SQLAlchemy sessionmaker."""
-    url = make_url(settings.database_url)
-    sync_driver = url.drivername.replace("+asyncpg", "").replace("+aiopg", "")
-    sync_url = str(url.set(drivername=sync_driver))
-    engine = create_engine(sync_url, pool_pre_ping=True)
+    url = URL.create(
+        drivername="postgresql+psycopg2",
+        username=settings.worker_db_user,
+        password=settings.worker_db_password,
+        host=settings.worker_db_host,
+        port=settings.worker_db_port,
+        database=settings.worker_db_name,
+    )
+    engine = create_engine(url, pool_pre_ping=True)
     return sessionmaker(bind=engine, expire_on_commit=False)
 
 
@@ -96,15 +96,24 @@ def _download_file(storage_path: str, dest_path: str) -> int:
 def _extract_text(file_path: str) -> str:
     ext = os.path.splitext(file_path)[-1].lower()
 
+    # ── Plain text formats ─────────────────────────────────────────────────
     if ext in (".txt", ".md", ".markdown"):
         with open(file_path, encoding="utf-8", errors="replace") as fh:
             return fh.read()
 
-    from docling.document_converter import DocumentConverter
+    # ── PDF ────────────────────────────────────────────────────────────────
+    if ext == ".pdf":
+        return _extract_pdf(file_path)
 
-    converter = DocumentConverter()
-    result = converter.convert(file_path)
-    return result.document.export_to_markdown(traverse_pictures=True)
+    # ── DOCX ───────────────────────────────────────────────────────────────
+    if ext == ".docx":
+        return _extract_docx(file_path)
+
+    # ── Images ─────────────────────────────────────────────────────────────
+    if ext in (".jpg", ".jpeg", ".png", ".gif", ".webp"):
+        return _extract_image(file_path)
+
+    raise NonRetryableError(f"Unsupported file extension: {ext}")
 
 
 def _clean_text(text: str) -> str:

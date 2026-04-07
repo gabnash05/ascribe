@@ -71,6 +71,7 @@ async def get_current_user(
 
         headers = jwt.get_unverified_headers(token)
         kid = headers.get("kid")
+        alg = headers.get("alg", "ES256")
         if not kid:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -86,10 +87,12 @@ async def get_current_user(
 
         public_key = jwk.construct(key)
 
+        allowed_algorithms = [alg] if alg else ["RS256", "ES256", "HS256"]
+
         payload = jwt.decode(
             token,
             public_key,
-            algorithms=["RS256"],
+            algorithms=allowed_algorithms,
             audience="authenticated",
             issuer=f"{settings.supabase_url}/auth/v1",
         )

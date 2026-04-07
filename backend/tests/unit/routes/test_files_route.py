@@ -9,7 +9,7 @@ BASE = f"/api/v1/vaults/{VAULT_ID}/files"
 
 @pytest.mark.asyncio
 async def test_upload_file_202(client):
-    record = make_file(status="processing")
+    record = make_file(status="PROCESSING")
     record.id = FILE_ID
 
     with patch(
@@ -22,7 +22,7 @@ async def test_upload_file_202(client):
 
     assert resp.status_code == 202
     body = resp.json()
-    assert body["status"] == "processing"
+    assert body["status"] == "PROCESSING"
     assert "file_id" in body
 
 
