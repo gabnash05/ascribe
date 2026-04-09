@@ -99,6 +99,11 @@ async def list_files(
     return FileListResponse(
         files=[FileResponse.model_validate(f) for f in files],
         total=total,
+        page=page,
+        page_size=page_size,
+        pages=(total + page_size - 1) // page_size,
+        has_next=offset + page_size < total,
+        has_prev=page > 1,
     )
 
 

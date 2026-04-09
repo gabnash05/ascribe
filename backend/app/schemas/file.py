@@ -29,3 +29,8 @@ class FileResponse(BaseModel):
 class FileListResponse(BaseModel):
     files: list[FileResponse]
     total: int
+    page: int
+    page_size: int
+    pages: int
+    has_next: bool
+    has_prev: bool

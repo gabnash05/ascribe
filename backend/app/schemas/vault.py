@@ -29,3 +29,8 @@ class VaultResponse(BaseModel):
 class VaultListResponse(BaseModel):
     vaults: list[VaultResponse]
     total: int
+    page: int
+    page_size: int
+    pages: int
+    has_next: bool
+    has_prev: bool
