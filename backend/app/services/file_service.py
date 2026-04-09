@@ -2,12 +2,13 @@ import asyncio
 from uuid import uuid4
 
 from fastapi import UploadFile
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from supabase import Client as SupabaseClient
 
 from app.core.config import settings
 from app.models.file import File
+from app.schemas.file import FileListResponse, FileResponse
 from app.services import vault_service
 from app.workers.ingestion import ingest_file
 
@@ -20,7 +21,7 @@ async def upload_file(
     vault_id: str,
     user_id: str,
     file: UploadFile,
-) -> File:
+) -> FileResponse:
     vault = await vault_service.get_vault(db, vault_id, user_id)
     if vault is None:
         raise ValueError(f"Vault {vault_id} not found or access denied.")
@@ -62,22 +63,43 @@ async def upload_file(
 
     ingest_file.delay(str(record.id))
 
-    return record
+    return FileResponse.model_validate(record)
 
 
 async def list_files(
     db: AsyncSession,
     vault_id: str,
     user_id: str,
-) -> list[File]:
+    page: int = 1,
+    page_size: int = 20,
+) -> FileListResponse:
     vault = await vault_service.get_vault(db, vault_id, user_id)
     if vault is None:
         raise ValueError(f"Vault {vault_id} not found or access denied.")
 
-    result = await db.execute(
-        select(File).where(File.vault_id == vault_id).order_by(File.created_at.desc())
+    page = max(1, page)
+    page_size = min(100, max(1, page_size))
+    offset = (page - 1) * page_size
+
+    count_result = await db.execute(
+        select(func.count()).select_from(File).where(File.vault_id == vault_id)
     )
-    return list(result.scalars().all())
+    total = count_result.scalar()
+
+    result = await db.execute(
+        select(File)
+        .where(File.vault_id == vault_id)
+        .order_by(File.created_at.desc())
+        .offset(offset)
+        .limit(page_size)
+    )
+
+    files = list(result.scalars().all())
+
+    return FileListResponse(
+        files=[FileResponse.model_validate(f) for f in files],
+        total=total,
+    )
 
 
 async def get_file(
@@ -85,7 +107,7 @@ async def get_file(
     file_id: str,
     vault_id: str,
     user_id: str,
-) -> File | None:
+) -> FileResponse | None:
     result = await db.execute(
         select(File).where(
             File.id == file_id,
@@ -93,7 +115,8 @@ async def get_file(
             File.user_id == user_id,
         )
     )
-    return result.scalar_one_or_none()
+    file = result.scalar_one_or_none()
+    return FileResponse.model_validate(file) if file else None
 
 
 async def get_file_status(

@@ -1,11 +1,11 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.schemas.vault import VaultCreate, VaultResponse, VaultUpdate
+from app.schemas.vault import VaultCreate, VaultListResponse, VaultResponse, VaultUpdate
 from app.services import vault_service
 
 router = APIRouter(prefix="/vaults", tags=["vaults"])
@@ -23,12 +23,14 @@ async def create_vault(
     return vault
 
 
-@router.get("", response_model=list[VaultResponse])
+@router.get("", response_model=VaultListResponse)
 async def list_vaults(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: UUID = Depends(get_current_user),
 ):
-    return await vault_service.list_vaults(db, str(current_user))
+    return await vault_service.list_vaults(db, str(current_user), page, page_size)
 
 
 @router.get("/{vault_id}", response_model=VaultResponse)

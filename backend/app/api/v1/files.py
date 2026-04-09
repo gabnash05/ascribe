@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from supabase import Client
 
 from app.core.clients import get_supabase
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.schemas.file import FileResponse
+from app.schemas.file import FileListResponse, FileResponse
 from app.services import file_service
 
 router = APIRouter(prefix="/vaults/{vault_id}/files", tags=["files"])
@@ -39,14 +39,18 @@ async def upload_file(
     return {"file_id": str(record.id), "status": record.status}
 
 
-@router.get("", response_model=list[FileResponse])
+@router.get("", response_model=FileListResponse)
 async def list_files(
     vault_id: UUID,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
     current_user: UUID = Depends(get_current_user),
 ):
     try:
-        return await file_service.list_files(db, str(vault_id), str(current_user))
+        return await file_service.list_files(
+            db, str(vault_id), str(current_user), page, page_size
+        )
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
