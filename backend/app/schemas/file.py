@@ -26,6 +26,14 @@ class FileResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class FileStatusResponse(BaseModel):
+    id: uuid.UUID
+    status: FileStatusEnum
+    error_message: str | None
+
+    model_config = {"from_attributes": True}
+
+
 class FileListResponse(BaseModel):
     files: list[FileResponse]
     total: int

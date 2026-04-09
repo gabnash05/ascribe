@@ -1,4 +1,4 @@
-import type { File } from './file'
+import type { VaultFile } from './file'
 import type { Vault } from './vault'
 
 export interface PaginatedResponse<T> {
@@ -12,4 +12,4 @@ export interface PaginatedResponse<T> {
 }
 
 export type VaultListResponse = PaginatedResponse<Vault>
-export type FileListResponse = PaginatedResponse<File>
+export type FileListResponse = PaginatedResponse<VaultFile>

@@ -7,7 +7,7 @@ from supabase import Client
 from app.core.clients import get_supabase
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.schemas.file import FileListResponse, FileResponse
+from app.schemas.file import FileListResponse, FileResponse, FileStatusResponse
 from app.services import file_service
 
 router = APIRouter(prefix="/vaults/{vault_id}/files", tags=["files"])
@@ -74,7 +74,7 @@ async def get_file(
     return record
 
 
-@router.get("/{file_id}/status")
+@router.get("/{file_id}/status", response_model=FileStatusResponse)
 async def get_file_status(
     vault_id: UUID,
     file_id: UUID,

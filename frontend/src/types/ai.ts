@@ -24,3 +24,9 @@ export interface QuizRequest {
 export interface SummarizeRequest {
   file_ids?: string[] | null
 }
+
+export interface AIResponse {
+  summary: string | null
+  flashcards: FlashCard[] | null
+  quiz: QuizQuestion[] | null
+}

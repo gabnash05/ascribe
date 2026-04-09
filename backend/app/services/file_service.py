@@ -8,7 +8,7 @@ from supabase import Client as SupabaseClient
 
 from app.core.config import settings
 from app.models.file import File
-from app.schemas.file import FileListResponse, FileResponse
+from app.schemas.file import FileListResponse, FileResponse, FileStatusResponse
 from app.services import vault_service
 from app.workers.ingestion import ingest_file
 
@@ -133,11 +133,11 @@ async def get_file_status(
     file = await get_file(db, file_id, vault_id, user_id)
     if file is None:
         return None
-    return {
-        "status": file.status,
-        "error_message": file.error_message,
-        "total_chunks": file.total_chunks,
-    }
+    return FileStatusResponse(
+        status=file.status,
+        error_message=file.error_message,
+        total_chunks=file.total_chunks,
+    )
 
 
 async def delete_file(
