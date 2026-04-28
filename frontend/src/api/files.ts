@@ -10,6 +10,7 @@ export const filesApi = {
     form.append('file', file)
     return apiClient.post<FileUploadResponse>(`/vaults/${vaultId}/files`, form).then((r) => r.data)
   },
+
   getStatus: (vaultId: string, fileId: string) =>
     apiClient
       .get<FileStatusResponse>(`/vaults/${vaultId}/files/${fileId}/status`)

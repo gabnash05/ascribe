@@ -14,8 +14,16 @@ const queryClient = new QueryClient({
 
 const router = createRouter({
   routeTree,
-  context: { queryClient },
+  context: {
+    queryClient,
+    get session() {
+      return useAuthStore.getState().session
+    },
+  },
 })
+
+// re-run beforeLoad whenever auth state changes
+useAuthStore.subscribe(() => router.invalidate())
 
 declare module '@tanstack/react-router' {
   interface Register {
