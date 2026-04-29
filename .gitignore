@@ -97,7 +97,8 @@ frontend/.output/
 frontend/.vite/
 
 # TanStack Router generated files
-frontend/src/routeTree.gen.ts
+.tanstack/tmp
+src/routeTree.gen.ts
 
 # ──────────────────────────────────────────────────────────────
 # Docker

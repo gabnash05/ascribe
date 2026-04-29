@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { NavigationMenu } from '@/components/ui/navigation-menu'
+import { AppShell } from '@/components/layout/AppShell'
 
 export const Route = createFileRoute('/_app')({
   component: () => (
     <>
-      <NavigationMenu />
-      <Outlet />
+      <AppShell>
+        <Outlet />
+      </AppShell>
     </>
   ),
 })
