@@ -5,7 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import get_current_user
-from app.schemas.vault import VaultCreate, VaultListResponse, VaultResponse, VaultUpdate
+from app.schemas.vault import (
+    VaultCreate,
+    VaultResponse,
+    VaultUpdate,
+    VaultViewListResponse,
+)
 from app.services import vault_service
 
 router = APIRouter(prefix="/vaults", tags=["vaults"])
@@ -19,11 +24,10 @@ async def create_vault(
 ):
     vault = await vault_service.create_vault(db, str(current_user), data)
     await db.commit()
-    await db.refresh(vault)
     return vault
 
 
-@router.get("", response_model=VaultListResponse)
+@router.get("", response_model=VaultViewListResponse)
 async def list_vaults(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -60,7 +64,6 @@ async def update_vault(
             status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found"
         )
     await db.commit()
-    await db.refresh(vault)
     return vault
 
 

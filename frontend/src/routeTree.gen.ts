@@ -13,11 +13,12 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultVaultIdRouteImport } from './routes/vault/$vaultId'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AppWorkshopRouteImport } from './routes/_app/workshop'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppHomeRouteImport } from './routes/_app/home'
 import { Route as AppGenerateRouteImport } from './routes/_app/generate'
 import { Route as AppDocumentsRouteImport } from './routes/_app/documents'
+import { Route as AppWorkshopIndexRouteImport } from './routes/_app/workshop/index'
+import { Route as AppWorkshopVaultIdRouteImport } from './routes/_app/workshop/$vaultId'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -37,11 +38,6 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/_auth/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AppWorkshopRoute = AppWorkshopRouteImport.update({
-  id: '/workshop',
-  path: '/workshop',
-  getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
@@ -63,6 +59,16 @@ const AppDocumentsRoute = AppDocumentsRouteImport.update({
   path: '/documents',
   getParentRoute: () => AppRoute,
 } as any)
+const AppWorkshopIndexRoute = AppWorkshopIndexRouteImport.update({
+  id: '/workshop/',
+  path: '/workshop/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorkshopVaultIdRoute = AppWorkshopVaultIdRouteImport.update({
+  id: '/workshop/$vaultId',
+  path: '/workshop/$vaultId',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -70,9 +76,10 @@ export interface FileRoutesByFullPath {
   '/generate': typeof AppGenerateRoute
   '/home': typeof AppHomeRoute
   '/settings': typeof AppSettingsRoute
-  '/workshop': typeof AppWorkshopRoute
   '/login': typeof AuthLoginRoute
   '/vault/$vaultId': typeof VaultVaultIdRoute
+  '/workshop/$vaultId': typeof AppWorkshopVaultIdRoute
+  '/workshop/': typeof AppWorkshopIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -80,9 +87,10 @@ export interface FileRoutesByTo {
   '/generate': typeof AppGenerateRoute
   '/home': typeof AppHomeRoute
   '/settings': typeof AppSettingsRoute
-  '/workshop': typeof AppWorkshopRoute
   '/login': typeof AuthLoginRoute
   '/vault/$vaultId': typeof VaultVaultIdRoute
+  '/workshop/$vaultId': typeof AppWorkshopVaultIdRoute
+  '/workshop': typeof AppWorkshopIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -92,9 +100,10 @@ export interface FileRoutesById {
   '/_app/generate': typeof AppGenerateRoute
   '/_app/home': typeof AppHomeRoute
   '/_app/settings': typeof AppSettingsRoute
-  '/_app/workshop': typeof AppWorkshopRoute
   '/_auth/login': typeof AuthLoginRoute
   '/vault/$vaultId': typeof VaultVaultIdRoute
+  '/_app/workshop/$vaultId': typeof AppWorkshopVaultIdRoute
+  '/_app/workshop/': typeof AppWorkshopIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -104,9 +113,10 @@ export interface FileRouteTypes {
     | '/generate'
     | '/home'
     | '/settings'
-    | '/workshop'
     | '/login'
     | '/vault/$vaultId'
+    | '/workshop/$vaultId'
+    | '/workshop/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -114,9 +124,10 @@ export interface FileRouteTypes {
     | '/generate'
     | '/home'
     | '/settings'
-    | '/workshop'
     | '/login'
     | '/vault/$vaultId'
+    | '/workshop/$vaultId'
+    | '/workshop'
   id:
     | '__root__'
     | '/'
@@ -125,9 +136,10 @@ export interface FileRouteTypes {
     | '/_app/generate'
     | '/_app/home'
     | '/_app/settings'
-    | '/_app/workshop'
     | '/_auth/login'
     | '/vault/$vaultId'
+    | '/_app/workshop/$vaultId'
+    | '/_app/workshop/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -167,13 +179,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/workshop': {
-      id: '/_app/workshop'
-      path: '/workshop'
-      fullPath: '/workshop'
-      preLoaderRoute: typeof AppWorkshopRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/settings': {
       id: '/_app/settings'
       path: '/settings'
@@ -202,6 +207,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDocumentsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/workshop/': {
+      id: '/_app/workshop/'
+      path: '/workshop'
+      fullPath: '/workshop/'
+      preLoaderRoute: typeof AppWorkshopIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/workshop/$vaultId': {
+      id: '/_app/workshop/$vaultId'
+      path: '/workshop/$vaultId'
+      fullPath: '/workshop/$vaultId'
+      preLoaderRoute: typeof AppWorkshopVaultIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -210,7 +229,8 @@ interface AppRouteChildren {
   AppGenerateRoute: typeof AppGenerateRoute
   AppHomeRoute: typeof AppHomeRoute
   AppSettingsRoute: typeof AppSettingsRoute
-  AppWorkshopRoute: typeof AppWorkshopRoute
+  AppWorkshopVaultIdRoute: typeof AppWorkshopVaultIdRoute
+  AppWorkshopIndexRoute: typeof AppWorkshopIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -218,7 +238,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppGenerateRoute: AppGenerateRoute,
   AppHomeRoute: AppHomeRoute,
   AppSettingsRoute: AppSettingsRoute,
-  AppWorkshopRoute: AppWorkshopRoute,
+  AppWorkshopVaultIdRoute: AppWorkshopVaultIdRoute,
+  AppWorkshopIndexRoute: AppWorkshopIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

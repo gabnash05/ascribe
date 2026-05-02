@@ -13,18 +13,14 @@ load_dotenv()
 
 config = context.config
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("ALEMBIC_DATABASE_URL")
 
 
 # Convert async URL to sync URL for Alembic
 def get_sync_database_url() -> str:
     """Convert async database URL to sync URL for Alembic migrations."""
     if DATABASE_URL:
-        # Replace asyncpg with psycopg2 for sync connections
-        sync_url = DATABASE_URL.replace("+asyncpg", "")
-        # Also handle any other async drivers if needed
-        sync_url = sync_url.replace("+aiopg", "")
-        return sync_url
+        return DATABASE_URL
     return "postgresql://postgres:postgres@localhost:5432/postgres"
 
 

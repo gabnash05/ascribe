@@ -1,8 +1,12 @@
 import { apiClient } from './client'
-import type { Vault, VaultListResponse, VaultCreate, VaultUpdate } from '@/types'
+import type { Vault, VaultCreate, VaultUpdate } from '@/types/vault'
+import type { VaultListResponse } from '@/types'
 
 export const vaultsApi = {
-  list: () => apiClient.get<VaultListResponse[]>('/vaults').then((r) => r.data),
+  list: (page: number = 1, pageSize: number = 20) =>
+    apiClient
+      .get<VaultListResponse>('/vaults', { params: { page, page_size: pageSize } })
+      .then((r) => r.data),
 
   get: (id: string) => apiClient.get<Vault>(`/vaults/${id}`).then((r) => r.data),
 

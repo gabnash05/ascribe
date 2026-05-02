@@ -11,9 +11,10 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar'
-import { Home, FileText, Sparkles, Pen, Settings } from 'lucide-react'
+import { Home, FileText, Sparkles, Pen, Settings, LogOut } from 'lucide-react'
 import { VaultSwitcher } from '@/components/layout/VaultSwitcher'
-//import { useAuthStore } from '@/stores/authStore'
+import { CreateVaultDialog } from '@/components/vaults/CreateVaultDialog'
+import { useAuthStore } from '@/stores/authStore'
 
 const navItems = [
   { label: 'Home', to: '/home', icon: Home },
@@ -23,52 +24,68 @@ const navItems = [
 ]
 
 export function AppSidebar() {
-  //const { signOut } = useAuthStore()
+  const { signOut } = useAuthStore()
 
   return (
-    <Sidebar collapsible="icon">
-      {/* ── Header — vault switcher ─────────────────────────────────────── */}
-      <SidebarHeader>
-        <VaultSwitcher />
-      </SidebarHeader>
+    <>
+      <Sidebar collapsible="icon">
+        {/* ── Header — vault switcher ─────────────────────────────────── */}
+        <SidebarHeader>
+          <VaultSwitcher />
+        </SidebarHeader>
 
-      <SidebarSeparator />
+        <SidebarSeparator />
 
-      {/* ── Main nav ───────────────────────────────────────────────────── */}
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+        {/* ── Main nav ─────────────────────────────────────────────────── */}
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-sm">Workspace</SidebarGroupLabel>
+            <SidebarMenu>
+              {navItems.map(({ label, to, icon: Icon }) => (
+                <SidebarMenuItem key={to}>
+                  <SidebarMenuButton asChild tooltip={label}>
+                    <Link
+                      to={to}
+                      activeProps={{
+                        className: 'bg-sidebar-accent text-sidebar-accent-foreground',
+                      }}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="text-sm">{label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+
+        {/* ── Footer ───────────────────────────────────────────────────── */}
+        <SidebarFooter>
           <SidebarMenu>
-            {navItems.map(({ label, to, icon: Icon }) => (
-              <SidebarMenuItem key={to}>
-                <SidebarMenuButton asChild tooltip={label}>
-                  <Link
-                    to={to}
-                    activeProps={{ className: 'bg-sidebar-accent text-sidebar-accent-foreground' }}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span>{label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Settings">
+                <Link to="/settings">
+                  <Settings className="h-4 w-4 shrink-0" />
+                  <span className="text-sm">Settings</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip="Sign Out"
+                onClick={signOut}
+                className="text-red-500 hover:text-red-500 hover:bg-red-500/10"
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                <span className="text-sm">Sign Out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
+        </SidebarFooter>
+      </Sidebar>
 
-      {/* ── Footer — settings ──────────────────────────────────────────── */}
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings">
-              <Link to="/settings">
-                <Settings className="h-4 w-4 shrink-0" />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+      <CreateVaultDialog />
+    </>
   )
 }

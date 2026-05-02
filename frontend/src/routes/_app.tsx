@@ -3,10 +3,8 @@ import { AppShell } from '@/components/layout/AppShell'
 
 export const Route = createFileRoute('/_app')({
   component: () => (
-    <>
-      <AppShell>
-        <Outlet />
-      </AppShell>
-    </>
+    <AppShell>
+      <Outlet />
+    </AppShell>
   ),
 })

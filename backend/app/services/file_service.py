@@ -97,7 +97,7 @@ async def list_files(
     files = list(result.scalars().all())
 
     return FileListResponse(
-        files=[FileResponse.model_validate(f) for f in files],
+        items=[FileResponse.model_validate(f) for f in files],
         total=total,
         page=page,
         page_size=page_size,

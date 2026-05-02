@@ -1,6 +1,7 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import {
   Breadcrumb,
+  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
@@ -8,7 +9,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
-// Maps route pathnames to human-readable labels
 const ROUTE_LABELS: Record<string, string> = {
   home: 'Home',
   documents: 'Documents',
@@ -19,40 +19,53 @@ const ROUTE_LABELS: Record<string, string> = {
 
 export function VaultBreadcrumb() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
-
   const segments = pathname.split('/').filter(Boolean)
 
   if (segments.length === 0) return null
 
+  const middleSegments = segments.slice(0, -1)
+  const lastSegment = segments[segments.length - 1]
+  const lastLabel = ROUTE_LABELS[lastSegment] ?? lastSegment
+
   return (
     <Breadcrumb>
-      <BreadcrumbList>
-        {/* Always show Vaults as the root */}
+      <BreadcrumbList className="flex-nowrap overflow-hidden">
+        {/* Root — always visible */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
             <Link to="/home">Vaults</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        {segments.map((segment, index) => {
-          const isLast = index === segments.length - 1
-          const label = ROUTE_LABELS[segment] ?? segment
+        {middleSegments.length > 0 && (
+          <>
+            {/* Ellipsis — mobile only */}
+            <BreadcrumbSeparator className="md:hidden" />
+            <BreadcrumbItem className="md:hidden">
+              <BreadcrumbEllipsis />
+            </BreadcrumbItem>
 
-          return (
-            <span key={index} className="contents">
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                {isLast ? (
-                  <BreadcrumbPage>{label}</BreadcrumbPage>
-                ) : (
+            {/* Full middle segments — desktop only */}
+            {middleSegments.map((segment, index) => (
+              <span key={index} className="hidden md:flex md:items-center md:gap-1.5">
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to={`/${segments.slice(0, index + 1).join('/')}`}>{label}</Link>
+                    <Link to={`/${segments.slice(0, index + 1).join('/')}`}>
+                      {ROUTE_LABELS[segment] ?? segment}
+                    </Link>
                   </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </span>
-          )
-        })}
+                </BreadcrumbItem>
+              </span>
+            ))}
+          </>
+        )}
+
+        {/* Last segment — always visible */}
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbPage className="truncate max-w-40">{lastLabel}</BreadcrumbPage>
+        </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
   )

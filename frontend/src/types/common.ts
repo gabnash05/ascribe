@@ -1,5 +1,5 @@
 import type { VaultFile } from './file'
-import type { Vault } from './vault'
+import type { VaultView } from './vault'
 
 export interface PaginatedResponse<T> {
   items: T[]
@@ -11,5 +11,5 @@ export interface PaginatedResponse<T> {
   has_prev: boolean
 }
 
-export type VaultListResponse = PaginatedResponse<Vault>
+export type VaultListResponse = PaginatedResponse<VaultView>
 export type FileListResponse = PaginatedResponse<VaultFile>

@@ -35,7 +35,7 @@ class FileStatusResponse(BaseModel):
 
 
 class FileListResponse(BaseModel):
-    files: list[FileResponse]
+    items: list[FileResponse]
     total: int
     page: int
     page_size: int
